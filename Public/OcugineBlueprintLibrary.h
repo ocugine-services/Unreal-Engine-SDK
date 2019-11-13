@@ -11,6 +11,14 @@
 #pragma once
 
 #include "OcugineBaseModel.h"
+#include "OcugineAuthModel.h"
+#include "OcugineUsersModel.h"
+#include "OcugineAnalyticsModel.h"
+#include "OcugineBackendModel.h"
+#include "OcugineGamingModel.h"
+#include "OcugineLocaleModel.h"
+#include "OcugineReportsModel.h"
+#include "OcugineUtilsModel.h"
 
 #include "CoreMinimal.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
@@ -68,7 +76,6 @@ public:
 	UFUNCTION(BlueprintCallable, Category = "Ocugine|Auth", meta = (AutoCreateRefTerm = "SuccessCallback, ErrorCallback"))
 		static void OcugineLogout(const FString& AccessToken, const FOnComplete& SuccessCallback, const FOnError& ErrorCallback);
 	static void OcugineLogout_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded, FOnComplete SuccessCallback, FOnError ErrorCallback);
-
 
 	/** Utils Module **/
 	// Create http request
