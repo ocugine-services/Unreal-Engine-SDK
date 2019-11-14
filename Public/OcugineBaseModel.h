@@ -2,8 +2,8 @@
 //  @name           Ocugine SDK
 //	@author			Daniel Varentsov <daniel@ocugine.pro>
 //  @developer      Ocugine Platform
-//  @version        0.4.1
-//  @build          413
+//  @version        0.7.0
+//  @build          700
 //  @url            https://ocugine.pro/
 //  @docs           https://docs.ocugine.pro/
 //  @license        MIT

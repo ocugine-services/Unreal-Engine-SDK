@@ -2,14 +2,15 @@
 //  @name           Ocugine SDK
 //	@author			Daniel Varentsov <daniel@ocugine.pro>
 //  @developer      Ocugine Platform
-//  @version        0.4.1
-//  @build          413
+//  @version        0.7.0
+//  @build          700
 //  @url            https://ocugine.pro/
 //  @docs           https://docs.ocugine.pro/
 //  @license        MIT
 
 #pragma once
 
+// Ocugine models
 #include "OcugineBaseModel.h"
 #include "OcugineAuthModel.h"
 #include "OcugineUsersModel.h"
@@ -20,12 +21,17 @@
 #include "OcugineReportsModel.h"
 #include "OcugineUtilsModel.h"
 
+// Ocugine libraries
+#include "CustomGameSettings.h"
+
+// Base libraries
 #include "CoreMinimal.h"
 #include "Kismet/BlueprintFunctionLibrary.h"
 #include "Runtime/Online/HTTP/Public/Http.h"
 #include "Json.h"
 #include "JsonUtilities.h"
 
+// Default
 #include "OcugineBlueprintLibrary.generated.h"
 
 // Auth delegates
@@ -41,9 +47,10 @@ class OCUGINESDK_API UOcugineBlueprintLibrary : public UBlueprintFunctionLibrary
 {
 	GENERATED_BODY()
 
-		/** Fields for requests **/
+	/** Fields for requests **/
 protected:
 	static const FString ServerURL;			// Requests server
+
 public:
 	static const FString STATE_OBJECT;
 	static const FString OAUTH_OBJECT;
@@ -86,4 +93,7 @@ public:
 	// Save data to file
 	UFUNCTION(BlueprintCallable, Category = "Ocugine|Utils")
 		static void SaveDataToFile(FString FileName, FString Data);
+	// Get grants string from config
+	UFUNCTION(BlueprintCallable, Category = "Ocugine|Utils")
+		static FString GetGrantsFromConfig();
 };

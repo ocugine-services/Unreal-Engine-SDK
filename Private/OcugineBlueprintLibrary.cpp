@@ -2,8 +2,8 @@
 //  @name           Ocugine SDK
 //	@author			Daniel Varentsov <daniel@ocugine.pro>
 //  @developer      Ocugine Platform
-//  @version        0.4.1
-//  @build          413
+//  @version        0.7.0
+//  @build          700
 //  @url            https://ocugine.pro/
 //  @docs           https://docs.ocugine.pro/
 //  @license        MIT
@@ -44,14 +44,13 @@ const FString UOcugineBlueprintLibrary::DEFAULT_REQUEST_ERROR(TEXT("Failed to se
 //              (delegate) SuccessCallback - Complete Callback
 //              (delegate) ErrorCallback - Error Callback
 //============================================================
-void UOcugineBlueprintLibrary::OcugineGetLink(const FString & AppID, const FString & AppKey, const FString& Grants, const FOnGetLinkComplete & SuccessCallback, const FOnError & ErrorCallback)
-{
+void UOcugineBlueprintLibrary::OcugineGetLink(const FString & AppID, const FString & AppKey, const FString & Grants, const FOnGetLinkComplete & SuccessCallback, const FOnError & ErrorCallback)
+{	
 	const FString PostContent = FString::Printf(TEXT("app_id=%s&app_key=%s&grants=%s"),
-		*AppID,
-		*AppKey,
-		*Grants
+		AppID != "" ? *AppID : *GetDefault<UCustomGameSettings>()->AppID,
+		AppKey != "" ? *AppKey : *GetDefault<UCustomGameSettings>()->AppKey,
+		Grants != "" ? *Grants : *UOcugineBlueprintLibrary::GetGrantsFromConfig()
 	);
-
 	TSharedRef<IHttpRequest> HttpRequest = UOcugineBlueprintLibrary::CreateHttpRequest(UOcugineBlueprintLibrary::OAUTH_OBJECT, "get_link", PostContent);
 	HttpRequest->OnProcessRequestComplete().BindStatic(&UOcugineBlueprintLibrary::OcugineGetLink_HttpRequestComplete, SuccessCallback, ErrorCallback);
 	HttpRequest->ProcessRequest();
@@ -80,7 +79,7 @@ void UOcugineBlueprintLibrary::OcugineGetLink_HttpRequestComplete(FHttpRequestPt
 //              (delegate) SuccessCallback - Complete Callback
 //              (delegate) ErrorCallback - Error Callback
 //============================================================
-void UOcugineBlueprintLibrary::OcugineGetToken(const FString & AppID, const FString & AppKey, const FString& AuthKey, const FOnGetTokenComplete & SuccessCallback, const FOnError & ErrorCallback, const bool RememberToken)
+void UOcugineBlueprintLibrary::OcugineGetToken(const FString & AppID, const FString & AppKey, const FString & AuthKey, const FOnGetTokenComplete & SuccessCallback, const FOnError & ErrorCallback, const bool RememberToken)
 {
 	// If token exist in directory
 	if (RememberToken && !UOcugineBlueprintLibrary::GetDataFromFile("access_token.o").IsEmpty()) {
@@ -129,7 +128,7 @@ void UOcugineBlueprintLibrary::OcugineGetToken_HttpRequestComplete(FHttpRequestP
 //              (delegate) SuccessCallback - Complete Callback
 //              (delegate) ErrorCallback - Error Callback
 //============================================================
-void UOcugineBlueprintLibrary::OcugineGetGrants(const FString & AppID, const FString & AppKey, const FString& AccessToken, const FOnGetTokenComplete & SuccessCallback, const FOnError & ErrorCallback)
+void UOcugineBlueprintLibrary::OcugineGetGrants(const FString & AppID, const FString & AppKey, const FString & AccessToken, const FOnGetTokenComplete & SuccessCallback, const FOnError & ErrorCallback)
 {
 	const FString PostContent = FString::Printf(TEXT("app_id=%s&app_key=%s&access_token=%s"),
 		*AppID,
@@ -326,6 +325,42 @@ void UOcugineBlueprintLibrary::SaveDataToFile(FString FileName, FString Data)
 		FString AbsoluteFilePath = directory + "/" + FileName;
 		FFileHelper::SaveStringToFile(Data, *AbsoluteFilePath);
 	}
+}
+
+//============================================================
+//  @method     GetGrantsFromConfig()
+//  @type       FString
+//  @usage		Returns
+//============================================================
+FString UOcugineBlueprintLibrary::GetGrantsFromConfig()
+{
+	FOcugineConfigGrantsTypes data = GetDefault<UCustomGameSettings>()->Grants;
+	FString result = "";
+
+	if (data.profile) result += "profile%2C";
+	if (data.reports) result += "reports%2C";
+	if (data.payments) result += "payments%2C";
+	if (data.promos) result += "promos%2C";
+	if (data.support_tickets) result += "support_tickets%2C";
+	if (data.reviews) result += "reviews%2C";
+	if (data.apps) result += "apps%2C";
+	if (data.leaderboards) result += "leaderboards%2C";
+	if (data.messages) result += "messages%2C";
+	if (data.achivements) result += "achivements%2C";
+	if (data.teams) result += "teams%2C";
+	if (data.multiplayer) result += "multiplayer%2C";
+	if (data.social) result += "social%2C";
+	if (data.cloud_data) result += "cloud_data%2C"; // Do not forget last ,
+
+	FString temp = "";
+	if (result == "profile%2Creports%2Cpayments%2Cpromos%2Csupport_tickets%2Creviews%2Capps%2Cleaderboards%2Cmessages%2Cachivements%2Cteams%2Cmultiplayer%2Csocial%2Ccloud_data%2C")
+		temp += TEXT("all");
+	else {
+		result.RemoveAt(result.Len() - 3, 3); 
+		temp += result;
+	}
+
+	return temp;
 }
 
 #pragma endregion
