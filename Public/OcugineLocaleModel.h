@@ -31,7 +31,7 @@ USTRUCT(BlueprintType) struct FOcugineLanguageDataModel
 USTRUCT(BlueprintType) struct FOcugineLanguageModel : public FOcugineBaseModel { GENERATED_BODY(); UPROPERTY(EditAnywhere, BlueprintReadOnly) FOcugineLanguageDataModel data; };
 /* Language list model */
 USTRUCT(BlueprintType) struct FOcugineLanguageListDataModel { GENERATED_BODY(); UPROPERTY(EditAnywhere, BlueprintReadOnly) TArray<FOcugineLanguageDataModel> list; };
-USTRUCT(BlueprintType) struct FOcugineLanguageListModel : public FOcugineBaseModel { GENERATED_BODY(); UPROPERTY(EditAnywhere, BlueprintReadOnly) FOcugineLanguageListDataModel data; };
+USTRUCT(BlueprintType) struct FOcugineLanguagesListModel : public FOcugineBaseModel { GENERATED_BODY(); UPROPERTY(EditAnywhere, BlueprintReadOnly) FOcugineLanguageListDataModel data; };
 
 /* Locale model */
 USTRUCT(BlueprintType) struct FOcugineLocaleDataModel
@@ -46,12 +46,13 @@ USTRUCT(BlueprintType) struct FOcugineLocaleDataModel
 USTRUCT(BlueprintType) struct FOcugineLocaleModel : public FOcugineBaseModel { GENERATED_BODY(); UPROPERTY(EditAnywhere, BlueprintReadOnly) FOcugineLocaleDataModel data; };
 
 /* Locale list model */
-USTRUCT(BlueprintType) struct FOcugineLocaleListDataModel
+USTRUCT(BlueprintType) struct FOcugineLocalesListDataListModel
 {
 	GENERATED_BODY();
 	UPROPERTY(EditAnywhere, BlueprintReadOnly) FString lang_name;
 	UPROPERTY(EditAnywhere, BlueprintReadOnly) TArray<FOcugineLocaleDataModel> list;
 };
-USTRUCT(BlueprintType) struct FOcugineLocaleListModel : public FOcugineBaseModel { GENERATED_BODY(); UPROPERTY(EditAnywhere, BlueprintReadOnly) FOcugineLocaleListDataModel data; };
+USTRUCT(BlueprintType) struct FOcugineLocalesListDataModel : public FOcugineBaseModel { GENERATED_BODY(); UPROPERTY(EditAnywhere, BlueprintReadOnly) TArray<FOcugineLocalesListDataListModel> list; };
+USTRUCT(BlueprintType) struct FOcugineLocalesListModel : public FOcugineBaseModel { GENERATED_BODY(); UPROPERTY(EditAnywhere, BlueprintReadOnly) FOcugineLocalesListDataModel data; };
 
 #pragma endregion

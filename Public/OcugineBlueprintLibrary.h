@@ -37,6 +37,11 @@
 // Auth delegates
 DECLARE_DYNAMIC_DELEGATE_OneParam(FOnGetLinkComplete, const FOcugineAuthLinkModel&, LoginData);
 DECLARE_DYNAMIC_DELEGATE_OneParam(FOnGetTokenComplete, const FOcugineAuthTokenModel&, TokenData);
+// Locale delegates
+DECLARE_DYNAMIC_DELEGATE_OneParam(FOnGetLangComplete, const FOcugineLanguageModel&, LanguageData);
+DECLARE_DYNAMIC_DELEGATE_OneParam(FOnGetLangListComplete, const FOcugineLanguagesListModel&, LanguagesListData);
+DECLARE_DYNAMIC_DELEGATE_OneParam(FOnGetLocaleComplete, const FOcugineLocaleModel&, LocaleData);
+DECLARE_DYNAMIC_DELEGATE_OneParam(FOnGetLocaleListComplete, const FOcugineLocalesListModel&, LocalesListData);
 // Default Complete delegate
 DECLARE_DYNAMIC_DELEGATE_OneParam(FOnComplete, const FOcugineBaseModel&, BaseModel);
 // Default Error delegate
@@ -84,16 +89,37 @@ public:
 		static void OcugineLogout(const FString& AccessToken, const FOnComplete& SuccessCallback, const FOnError& ErrorCallback);
 	static void OcugineLogout_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded, FOnComplete SuccessCallback, FOnError ErrorCallback);
 
+	/** Locale Module **/
+	// GetLang
+	UFUNCTION(BlueprintCallable, Category = "Ocugine|Localization", meta = (AutoCreateRefTerm = "SuccessCallback, ErrorCallback"))
+		static void OcugineGetLang(const FString & AppID, const FString & AppKey, const FString & LangCode, const FOnGetLangComplete& SuccessCallback, const FOnError& ErrorCallback);
+	static void OcugineGetLang_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded, FOnGetLangComplete SuccessCallback, FOnError ErrorCallback);
+	// GetLangList
+	UFUNCTION(BlueprintCallable, Category = "Ocugine|Localization", meta = (AutoCreateRefTerm = "SuccessCallback, ErrorCallback"))
+		static void OcugineGetLangList(const FString & AppID, const FString & AppKey, const FOnGetLangListComplete& SuccessCallback, const FOnError& ErrorCallback);
+	static void OcugineGetLangList_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded, FOnGetLangListComplete SuccessCallback, FOnError ErrorCallback);
+	// GetLocale
+	UFUNCTION(BlueprintCallable, Category = "Ocugine|Localization", meta = (AutoCreateRefTerm = "SuccessCallback, ErrorCallback"))
+		static void OcugineGetLocale(const FString & AppID, const FString & AppKey, const FString & LangCode, const FString & LocaleCode, const FOnGetLocaleComplete& SuccessCallback, const FOnError& ErrorCallback);
+	static void OcugineGetLocale_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded, FOnGetLocaleComplete SuccessCallback, FOnError ErrorCallback);
+	// GetLocaleList
+	UFUNCTION(BlueprintCallable, Category = "Ocugine|Localization", meta = (AutoCreateRefTerm = "SuccessCallback, ErrorCallback"))
+		static void OcugineGetLocaleList(const FString & AppID, const FString & AppKey, const FString & Search, const int64 Page, const FOnGetLocaleListComplete& SuccessCallback, const FOnError& ErrorCallback);
+	static void OcugineGetLocaleList_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded, FOnGetLocaleListComplete SuccessCallback, FOnError ErrorCallback);
+
 	/** Utils Module **/
 	// Create http request
 	static TSharedRef<IHttpRequest> CreateHttpRequest(const FString & Object, const FString & Method, const FString& Content);
 	// Get data from file
 	UFUNCTION(BlueprintCallable, Category = "Ocugine|Utils")
-		static FString GetDataFromFile(FString FileName);
+		static FString GetDataFromFile(FString FileName, bool IsEncoded = false);
 	// Save data to file
 	UFUNCTION(BlueprintCallable, Category = "Ocugine|Utils")
 		static void SaveDataToFile(FString FileName, FString Data);
 	// Get grants string from config
 	UFUNCTION(BlueprintCallable, Category = "Ocugine|Utils")
 		static FString GetGrantsFromConfig();
+	// Get language string from config
+	UFUNCTION(BlueprintCallable, Category = "Ocugine|Utils")
+		static FString GetApplicationLanguageFromConfig();
 };

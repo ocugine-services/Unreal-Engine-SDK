@@ -62,7 +62,7 @@ public:
 	UPROPERTY(EditAnywhere, config, Category = "Application Settings" /*, meta = (ConfigRestartRequired = true)*/) FOcugineConfigGrantsTypes Grants;
 
 	/** Development language */
-	UPROPERTY(EditAnywhere, config, Category = "SDK Settings (beta)") int32 AuthTimeout = 30;
+	UPROPERTY(EditAnywhere, config, Category = "SDK Settings (beta)", meta = (UIMin = 0, ClampMin = 0)) int32 AuthTimeout = 30;
 	/** Development language */
 	UPROPERTY(EditAnywhere, config, Category = "SDK Settings (beta)") TEnumAsByte<EOcugineConfigLanguageType> Language;
 
