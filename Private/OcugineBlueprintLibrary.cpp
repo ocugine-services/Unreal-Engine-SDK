@@ -361,6 +361,697 @@ void UOcugineBlueprintLibrary::OcugineGetLocaleList_HttpRequestComplete(FHttpReq
 //===================================================
 #pragma region Users
 
+void UOcugineBlueprintLibrary::OcugineGetUsersList(const FString & AppID, const FString & AppKey, const int64 Page, const FOnGetUsersListComplete &SuccessCallback, const FOnError &ErrorCallback)
+{
+	const FString PostContent = FString::Printf(TEXT("app_id=%s&app_key=%s&lang=%s&page=%s"),
+		AppID != "" ? *AppID : *GetDefault<UCustomGameSettings>()->AppID,
+		AppKey != "" ? *AppKey : *GetDefault<UCustomGameSettings>()->AppKey,
+		*UOcugineBlueprintLibrary::GetApplicationLanguageFromConfig(),
+		*FString::FromInt(Page)
+	);
+
+	TSharedRef<IHttpRequest> HttpRequest = UOcugineBlueprintLibrary::CreateHttpRequest(UOcugineBlueprintLibrary::USERS_OBJECT, "get_users_list", PostContent);
+	HttpRequest->OnProcessRequestComplete().BindStatic(&UOcugineBlueprintLibrary::OcugineGetUsersList_HttpRequestComplete, SuccessCallback, ErrorCallback);
+	HttpRequest->ProcessRequest();
+}
+void UOcugineBlueprintLibrary::OcugineGetUsersList_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded, FOnGetUsersListComplete SuccessCallback, FOnError ErrorCallback)
+{
+	if (bSucceeded)
+	{ // If request succeeded
+		FString ResponseStr = HttpResponse->GetContentAsString(); FOcugineUsersListModel ConvertedResponse; // Declare temp objects
+		if (FJsonObjectConverter::JsonObjectStringToUStruct<FOcugineUsersListModel>(ResponseStr, &ConvertedResponse, 0, 0)) // If converted
+		{
+			if (ConvertedResponse.complete) { SuccessCallback.ExecuteIfBound(ConvertedResponse); } // If complete is true execute callback
+			else { ErrorCallback.ExecuteIfBound(TEXT("Ocugine Error"), ConvertedResponse.message); } // If not completed
+		}
+		else { ErrorCallback.ExecuteIfBound(TEXT("Parse error"), DEFAULT_PARSE_ERROR); } // If convert exception
+	}
+	else { ErrorCallback.ExecuteIfBound(TEXT("Request error"), DEFAULT_REQUEST_ERROR); } // If request exception
+};
+
+void UOcugineBlueprintLibrary::OcugineFindUser(const FString & AppID, const FString & AppKey, const FString & Search, const int64 Page, const FOnFindUserComplete &SuccessCallback, const FOnError &ErrorCallback)
+{
+	const FString PostContent = FString::Printf(TEXT("app_id=%s&app_key=%s&lang=%s&search=%s&page=%s"),
+		AppID != "" ? *AppID : *GetDefault<UCustomGameSettings>()->AppID,
+		AppKey != "" ? *AppKey : *GetDefault<UCustomGameSettings>()->AppKey,
+		*UOcugineBlueprintLibrary::GetApplicationLanguageFromConfig(),
+		*Search,
+		*FString::FromInt(Page)
+	);
+
+	TSharedRef<IHttpRequest> HttpRequest = UOcugineBlueprintLibrary::CreateHttpRequest(UOcugineBlueprintLibrary::USERS_OBJECT, "find_user", PostContent);
+	HttpRequest->OnProcessRequestComplete().BindStatic(&UOcugineBlueprintLibrary::OcugineFindUser_HttpRequestComplete, SuccessCallback, ErrorCallback);
+	HttpRequest->ProcessRequest();
+}
+void UOcugineBlueprintLibrary::OcugineFindUser_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded, FOnFindUserComplete SuccessCallback, FOnError ErrorCallback)
+{
+	if (bSucceeded)
+	{ // If request succeeded
+		FString ResponseStr = HttpResponse->GetContentAsString(); FOcugineUsersListModel ConvertedResponse; // Declare temp objects
+		if (FJsonObjectConverter::JsonObjectStringToUStruct<FOcugineUsersListModel>(ResponseStr, &ConvertedResponse, 0, 0)) // If converted
+		{
+			if (ConvertedResponse.complete) { SuccessCallback.ExecuteIfBound(ConvertedResponse); } // If complete is true execute callback
+			else { ErrorCallback.ExecuteIfBound(TEXT("Ocugine Error"), ConvertedResponse.message); } // If not completed
+		}
+		else { ErrorCallback.ExecuteIfBound(TEXT("Parse error"), DEFAULT_PARSE_ERROR); } // If convert exception
+	}
+	else { ErrorCallback.ExecuteIfBound(TEXT("Request error"), DEFAULT_REQUEST_ERROR); } // If request exception
+};
+
+void UOcugineBlueprintLibrary::OcugineGetUserData(const FString & AppID, const FString & AppKey, const FString & AccessToken, const FOnGetUserDataComplete &SuccessCallback, const FOnError &ErrorCallback)
+{
+	const FString PostContent = FString::Printf(TEXT("app_id=%s&app_key=%s&lang=%s&access_token=%s"),
+		AppID != "" ? *AppID : *GetDefault<UCustomGameSettings>()->AppID,
+		AppKey != "" ? *AppKey : *GetDefault<UCustomGameSettings>()->AppKey,
+		*UOcugineBlueprintLibrary::GetApplicationLanguageFromConfig(),
+		AccessToken != "" ? *AccessToken : *UOcugineBlueprintLibrary::GetDataFromFile("access_token.o", true)
+	);
+
+	TSharedRef<IHttpRequest> HttpRequest = UOcugineBlueprintLibrary::CreateHttpRequest(UOcugineBlueprintLibrary::USERS_OBJECT, "get_user_data", PostContent);
+	HttpRequest->OnProcessRequestComplete().BindStatic(&UOcugineBlueprintLibrary::OcugineGetUserData_HttpRequestComplete, SuccessCallback, ErrorCallback);
+	HttpRequest->ProcessRequest();
+}
+void UOcugineBlueprintLibrary::OcugineGetUserData_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded, FOnGetUserDataComplete SuccessCallback, FOnError ErrorCallback)
+{
+	if (bSucceeded)
+	{ // If request succeeded
+		FString ResponseStr = HttpResponse->GetContentAsString(); FOcugineUserModel ConvertedResponse; // Declare temp objects
+		if (FJsonObjectConverter::JsonObjectStringToUStruct<FOcugineUserModel>(ResponseStr, &ConvertedResponse, 0, 0)) // If converted
+		{
+			if (ConvertedResponse.complete) { SuccessCallback.ExecuteIfBound(ConvertedResponse); } // If complete is true execute callback
+			else { ErrorCallback.ExecuteIfBound(TEXT("Ocugine Error"), ConvertedResponse.message); } // If not completed
+		}
+		else { ErrorCallback.ExecuteIfBound(TEXT("Parse error"), DEFAULT_PARSE_ERROR); } // If convert exception
+	}
+	else { ErrorCallback.ExecuteIfBound(TEXT("Request error"), DEFAULT_REQUEST_ERROR); } // If request exception
+};
+
+void UOcugineBlueprintLibrary::OcugineGetUserByID(const FString & AppID, const FString & AppKey, const int64 ProfileUid, const FOnGetUserByIDComplete &SuccessCallback, const FOnError &ErrorCallback)
+{
+	const FString PostContent = FString::Printf(TEXT("app_id=%s&app_key=%s&lang=%s&profile_uid=%s"),
+		AppID != "" ? *AppID : *GetDefault<UCustomGameSettings>()->AppID,
+		AppKey != "" ? *AppKey : *GetDefault<UCustomGameSettings>()->AppKey,
+		*UOcugineBlueprintLibrary::GetApplicationLanguageFromConfig(),
+		*FString::FromInt(ProfileUid)
+	);
+
+	TSharedRef<IHttpRequest> HttpRequest = UOcugineBlueprintLibrary::CreateHttpRequest(UOcugineBlueprintLibrary::USERS_OBJECT, "get_user_by_id", PostContent);
+	HttpRequest->OnProcessRequestComplete().BindStatic(&UOcugineBlueprintLibrary::OcugineGetUserByID_HttpRequestComplete, SuccessCallback, ErrorCallback);
+	HttpRequest->ProcessRequest();
+}
+void UOcugineBlueprintLibrary::OcugineGetUserByID_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded, FOnGetUserByIDComplete SuccessCallback, FOnError ErrorCallback)
+{
+	if (bSucceeded)
+	{ // If request succeeded
+		FString ResponseStr = HttpResponse->GetContentAsString(); FOcugineUserModel ConvertedResponse; // Declare temp objects
+		if (FJsonObjectConverter::JsonObjectStringToUStruct<FOcugineUserModel>(ResponseStr, &ConvertedResponse, 0, 0)) // If converted
+		{
+			if (ConvertedResponse.complete) { SuccessCallback.ExecuteIfBound(ConvertedResponse); } // If complete is true execute callback
+			else { ErrorCallback.ExecuteIfBound(TEXT("Ocugine Error"), ConvertedResponse.message); } // If not completed
+		}
+		else { ErrorCallback.ExecuteIfBound(TEXT("Parse error"), DEFAULT_PARSE_ERROR); } // If convert exception
+	}
+	else { ErrorCallback.ExecuteIfBound(TEXT("Request error"), DEFAULT_REQUEST_ERROR); } // If request exception
+};
+
+void UOcugineBlueprintLibrary::OcugineGetBanState(const FString & AppID, const FString & AppKey, const int64 ProfileUid, const FOnGetBanStateComplete &SuccessCallback, const FOnError &ErrorCallback)
+{
+	const FString PostContent = FString::Printf(TEXT("app_id=%s&app_key=%s&lang=%s&profile_uid=%s"),
+		AppID != "" ? *AppID : *GetDefault<UCustomGameSettings>()->AppID,
+		AppKey != "" ? *AppKey : *GetDefault<UCustomGameSettings>()->AppKey,
+		*UOcugineBlueprintLibrary::GetApplicationLanguageFromConfig(),
+		*FString::FromInt(ProfileUid)
+	);
+
+	TSharedRef<IHttpRequest> HttpRequest = UOcugineBlueprintLibrary::CreateHttpRequest(UOcugineBlueprintLibrary::USERS_OBJECT, "get_ban_state", PostContent);
+	HttpRequest->OnProcessRequestComplete().BindStatic(&UOcugineBlueprintLibrary::OcugineGetBanState_HttpRequestComplete, SuccessCallback, ErrorCallback);
+	HttpRequest->ProcessRequest();
+}
+void UOcugineBlueprintLibrary::OcugineGetBanState_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded, FOnGetBanStateComplete SuccessCallback, FOnError ErrorCallback)
+{
+	if (bSucceeded)
+	{ // If request succeeded
+		FString ResponseStr = HttpResponse->GetContentAsString(); FOcugineBanStateModel ConvertedResponse; // Declare temp objects
+		if (FJsonObjectConverter::JsonObjectStringToUStruct<FOcugineBanStateModel>(ResponseStr, &ConvertedResponse, 0, 0)) // If converted
+		{
+			if (ConvertedResponse.complete) { SuccessCallback.ExecuteIfBound(ConvertedResponse); } // If complete is true execute callback
+			else { ErrorCallback.ExecuteIfBound(TEXT("Ocugine Error"), ConvertedResponse.message); } // If not completed
+		}
+		else { ErrorCallback.ExecuteIfBound(TEXT("Parse error"), DEFAULT_PARSE_ERROR); } // If convert exception
+	}
+	else { ErrorCallback.ExecuteIfBound(TEXT("Request error"), DEFAULT_REQUEST_ERROR); } // If request exception
+};
+
+void UOcugineBlueprintLibrary::OcugineGetGroupData(const FString & AppID, const FString & AppKey, const int64 GroupId, const FOnGetGroupDataComplete &SuccessCallback, const FOnError &ErrorCallback)
+{
+	const FString PostContent = FString::Printf(TEXT("app_id=%s&app_key=%s&group_id=%s&lang=%s"),
+		AppID != "" ? *AppID : *GetDefault<UCustomGameSettings>()->AppID,
+		AppKey != "" ? *AppKey : *GetDefault<UCustomGameSettings>()->AppKey,
+		*FString::FromInt(GroupId),
+		*UOcugineBlueprintLibrary::GetApplicationLanguageFromConfig()
+	);
+
+	TSharedRef<IHttpRequest> HttpRequest = UOcugineBlueprintLibrary::CreateHttpRequest(UOcugineBlueprintLibrary::USERS_OBJECT, "get_group_data", PostContent);
+	HttpRequest->OnProcessRequestComplete().BindStatic(&UOcugineBlueprintLibrary::OcugineGetGroupData_HttpRequestComplete, SuccessCallback, ErrorCallback);
+	HttpRequest->ProcessRequest();
+}
+void UOcugineBlueprintLibrary::OcugineGetGroupData_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded, FOnGetGroupDataComplete SuccessCallback, FOnError ErrorCallback)
+{
+	if (bSucceeded)
+	{ // If request succeeded
+		FString ResponseStr = HttpResponse->GetContentAsString(); FOcugineGroupModel ConvertedResponse; // Declare temp objects
+		if (FJsonObjectConverter::JsonObjectStringToUStruct<FOcugineGroupModel>(ResponseStr, &ConvertedResponse, 0, 0)) // If converted
+		{
+			if (ConvertedResponse.complete) { SuccessCallback.ExecuteIfBound(ConvertedResponse); } // If complete is true execute callback
+			else { ErrorCallback.ExecuteIfBound(TEXT("Ocugine Error"), ConvertedResponse.message); } // If not completed
+		}
+		else { ErrorCallback.ExecuteIfBound(TEXT("Parse error"), DEFAULT_PARSE_ERROR); } // If convert exception
+	}
+	else { ErrorCallback.ExecuteIfBound(TEXT("Request error"), DEFAULT_REQUEST_ERROR); } // If request exception
+};
+
+void UOcugineBlueprintLibrary::OcugineGetGroupsList(const FString & AppID, const FString & AppKey, const FOnGetGroupsListComplete &SuccessCallback, const FOnError &ErrorCallback)
+{
+	const FString PostContent = FString::Printf(TEXT("app_id=%s&app_key=%s&lang=%s"),
+		AppID != "" ? *AppID : *GetDefault<UCustomGameSettings>()->AppID,
+		AppKey != "" ? *AppKey : *GetDefault<UCustomGameSettings>()->AppKey,
+		*UOcugineBlueprintLibrary::GetApplicationLanguageFromConfig()
+	);
+
+	TSharedRef<IHttpRequest> HttpRequest = UOcugineBlueprintLibrary::CreateHttpRequest(UOcugineBlueprintLibrary::USERS_OBJECT, "get_group_list", PostContent);
+	HttpRequest->OnProcessRequestComplete().BindStatic(&UOcugineBlueprintLibrary::OcugineGetGroupsList_HttpRequestComplete, SuccessCallback, ErrorCallback);
+	HttpRequest->ProcessRequest();
+}
+void UOcugineBlueprintLibrary::OcugineGetGroupsList_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded, FOnGetGroupsListComplete SuccessCallback, FOnError ErrorCallback)
+{
+	if (bSucceeded)
+	{ // If request succeeded
+		FString ResponseStr = HttpResponse->GetContentAsString(); FOcugineGroupsListModel ConvertedResponse; // Declare temp objects
+		if (FJsonObjectConverter::JsonObjectStringToUStruct<FOcugineGroupsListModel>(ResponseStr, &ConvertedResponse, 0, 0)) // If converted
+		{
+			if (ConvertedResponse.complete) { SuccessCallback.ExecuteIfBound(ConvertedResponse); } // If complete is true execute callback
+			else { ErrorCallback.ExecuteIfBound(TEXT("Ocugine Error"), ConvertedResponse.message); } // If not completed
+		}
+		else { ErrorCallback.ExecuteIfBound(TEXT("Parse error"), DEFAULT_PARSE_ERROR); } // If convert exception
+	}
+	else { ErrorCallback.ExecuteIfBound(TEXT("Request error"), DEFAULT_REQUEST_ERROR); } // If request exception
+};
+
+void UOcugineBlueprintLibrary::OcugineSetGroup(const FString & AppID, const FString & AppKey, const FString & AccessToken, const int64 ProfileUid, const int64 GroupId, const FOnSetGroupComplete &SuccessCallback, const FOnError &ErrorCallback)
+{
+	const FString PostContent = FString::Printf(TEXT("app_id=%s&app_key=%s&lang=%s&access_token=%s&profile_uid=%s&group_id=%s"),
+		AppID != "" ? *AppID : *GetDefault<UCustomGameSettings>()->AppID,
+		AppKey != "" ? *AppKey : *GetDefault<UCustomGameSettings>()->AppKey,
+		*UOcugineBlueprintLibrary::GetApplicationLanguageFromConfig(),
+		AccessToken != "" ? *AccessToken : *UOcugineBlueprintLibrary::GetDataFromFile("access_token.o", true),
+		*FString::FromInt(ProfileUid),
+		*FString::FromInt(GroupId)
+	);
+
+	TSharedRef<IHttpRequest> HttpRequest = UOcugineBlueprintLibrary::CreateHttpRequest(UOcugineBlueprintLibrary::USERS_OBJECT, "set_group", PostContent);
+	HttpRequest->OnProcessRequestComplete().BindStatic(&UOcugineBlueprintLibrary::OcugineSetGroup_HttpRequestComplete, SuccessCallback, ErrorCallback);
+	HttpRequest->ProcessRequest();
+}
+void UOcugineBlueprintLibrary::OcugineSetGroup_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded, FOnSetGroupComplete SuccessCallback, FOnError ErrorCallback)
+{
+	if (bSucceeded)
+	{ // If request succeeded
+		FString ResponseStr = HttpResponse->GetContentAsString(); FOcugineBaseModel ConvertedResponse; // Declare temp objects
+		if (FJsonObjectConverter::JsonObjectStringToUStruct<FOcugineBaseModel>(ResponseStr, &ConvertedResponse, 0, 0)) // If converted
+		{
+			if (ConvertedResponse.complete) { SuccessCallback.ExecuteIfBound(ConvertedResponse); } // If complete is true execute callback
+			else { ErrorCallback.ExecuteIfBound(TEXT("Ocugine Error"), ConvertedResponse.message); } // If not completed
+		}
+		else { ErrorCallback.ExecuteIfBound(TEXT("Parse error"), DEFAULT_PARSE_ERROR); } // If convert exception
+	}
+	else { ErrorCallback.ExecuteIfBound(TEXT("Request error"), DEFAULT_REQUEST_ERROR); } // If request exception
+};
+
+void UOcugineBlueprintLibrary::OcugineGetAdvancedFields(const FString & AppID, const FString & AppKey, const int64 Page, const FString & Search, const FOnGetAdvancedFieldsComplete &SuccessCallback, const FOnError &ErrorCallback)
+{
+	const FString PostContent = FString::Printf(TEXT("app_id=%s&app_key=%s&page=%s&search=%s"),
+		AppID != "" ? *AppID : *GetDefault<UCustomGameSettings>()->AppID,
+		AppKey != "" ? *AppKey : *GetDefault<UCustomGameSettings>()->AppKey,
+		*FString::FromInt(Page),
+		*Search
+	);
+
+	TSharedRef<IHttpRequest> HttpRequest = UOcugineBlueprintLibrary::CreateHttpRequest(UOcugineBlueprintLibrary::USERS_OBJECT, "get_fields", PostContent);
+	HttpRequest->OnProcessRequestComplete().BindStatic(&UOcugineBlueprintLibrary::OcugineGetAdvancedFields_HttpRequestComplete, SuccessCallback, ErrorCallback);
+	HttpRequest->ProcessRequest();
+}
+void UOcugineBlueprintLibrary::OcugineGetAdvancedFields_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded, FOnGetAdvancedFieldsComplete SuccessCallback, FOnError ErrorCallback)
+{
+	if (bSucceeded)
+	{ // If request succeeded
+		FString ResponseStr = HttpResponse->GetContentAsString(); FOcugineAdvancedFieldsListModel ConvertedResponse; // Declare temp objects
+		if (FJsonObjectConverter::JsonObjectStringToUStruct<FOcugineAdvancedFieldsListModel>(ResponseStr, &ConvertedResponse, 0, 0)) // If converted
+		{
+			if (ConvertedResponse.complete) { SuccessCallback.ExecuteIfBound(ConvertedResponse); } // If complete is true execute callback
+			else { ErrorCallback.ExecuteIfBound(TEXT("Ocugine Error"), ConvertedResponse.message); } // If not completed
+		}
+		else { ErrorCallback.ExecuteIfBound(TEXT("Parse error"), DEFAULT_PARSE_ERROR); } // If convert exception
+	}
+	else { ErrorCallback.ExecuteIfBound(TEXT("Request error"), DEFAULT_REQUEST_ERROR); } // If request exception
+};
+
+void UOcugineBlueprintLibrary::OcugineSetAdvancedField(const FString & AppID, const FString & AppKey, const FString & AccessToken, const int64 ProfileUid, const int64 FieldId, const FString & Value, const FOnSetAdvancedFieldComplete &SuccessCallback, const FOnError &ErrorCallback)
+{
+	const FString PostContent = FString::Printf(TEXT("app_id=%s&app_key=%s&lang=%s&access_token=%s&profile_uid=%s&field_id=%s&value=%s"),
+		AppID != "" ? *AppID : *GetDefault<UCustomGameSettings>()->AppID,
+		AppKey != "" ? *AppKey : *GetDefault<UCustomGameSettings>()->AppKey,
+		*UOcugineBlueprintLibrary::GetApplicationLanguageFromConfig(),
+		AccessToken != "" ? *AccessToken : *UOcugineBlueprintLibrary::GetDataFromFile("access_token.o", true),
+		*FString::FromInt(ProfileUid),
+		*FString::FromInt(FieldId),
+		*Value
+	);
+
+	TSharedRef<IHttpRequest> HttpRequest = UOcugineBlueprintLibrary::CreateHttpRequest(UOcugineBlueprintLibrary::USERS_OBJECT, "set_field", PostContent);
+	HttpRequest->OnProcessRequestComplete().BindStatic(&UOcugineBlueprintLibrary::OcugineSetAdvancedField_HttpRequestComplete, SuccessCallback, ErrorCallback);
+	HttpRequest->ProcessRequest();
+}
+void UOcugineBlueprintLibrary::OcugineSetAdvancedField_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded, FOnSetAdvancedFieldComplete SuccessCallback, FOnError ErrorCallback)
+{
+	if (bSucceeded)
+	{ // If request succeeded
+		FString ResponseStr = HttpResponse->GetContentAsString(); FOcugineBaseModel ConvertedResponse; // Declare temp objects
+		if (FJsonObjectConverter::JsonObjectStringToUStruct<FOcugineBaseModel>(ResponseStr, &ConvertedResponse, 0, 0)) // If converted
+		{
+			if (ConvertedResponse.complete) { SuccessCallback.ExecuteIfBound(ConvertedResponse); } // If complete is true execute callback
+			else { ErrorCallback.ExecuteIfBound(TEXT("Ocugine Error"), ConvertedResponse.message); } // If not completed
+		}
+		else { ErrorCallback.ExecuteIfBound(TEXT("Parse error"), DEFAULT_PARSE_ERROR); } // If convert exception
+	}
+	else { ErrorCallback.ExecuteIfBound(TEXT("Request error"), DEFAULT_REQUEST_ERROR); } // If request exception
+};
+
+void UOcugineBlueprintLibrary::OcugineGetSupportCategories(const FString & AppID, const FString & AppKey, const FOnGetSupportCategoriesComplete &SuccessCallback, const FOnError &ErrorCallback)
+{
+	const FString PostContent = FString::Printf(TEXT("app_id=%s&app_key=%s&lang=%s"),
+		AppID != "" ? *AppID : *GetDefault<UCustomGameSettings>()->AppID,
+		AppKey != "" ? *AppKey : *GetDefault<UCustomGameSettings>()->AppKey,
+		*UOcugineBlueprintLibrary::GetApplicationLanguageFromConfig()
+	);
+
+	TSharedRef<IHttpRequest> HttpRequest = UOcugineBlueprintLibrary::CreateHttpRequest(UOcugineBlueprintLibrary::USERS_OBJECT, "get_support_categories", PostContent);
+	HttpRequest->OnProcessRequestComplete().BindStatic(&UOcugineBlueprintLibrary::OcugineGetSupportCategories_HttpRequestComplete, SuccessCallback, ErrorCallback);
+	HttpRequest->ProcessRequest();
+}
+void UOcugineBlueprintLibrary::OcugineGetSupportCategories_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded, FOnGetSupportCategoriesComplete SuccessCallback, FOnError ErrorCallback)
+{
+	if (bSucceeded)
+	{ // If request succeeded
+		FString ResponseStr = HttpResponse->GetContentAsString(); FOcugineSupportCategoriesListModel ConvertedResponse; // Declare temp objects
+		if (FJsonObjectConverter::JsonObjectStringToUStruct<FOcugineSupportCategoriesListModel>(ResponseStr, &ConvertedResponse, 0, 0)) // If converted
+		{
+			if (ConvertedResponse.complete) { SuccessCallback.ExecuteIfBound(ConvertedResponse); } // If complete is true execute callback
+			else { ErrorCallback.ExecuteIfBound(TEXT("Ocugine Error"), ConvertedResponse.message); } // If not completed
+		}
+		else { ErrorCallback.ExecuteIfBound(TEXT("Parse error"), DEFAULT_PARSE_ERROR); } // If convert exception
+	}
+	else { ErrorCallback.ExecuteIfBound(TEXT("Request error"), DEFAULT_REQUEST_ERROR); } // If request exception
+};
+
+void UOcugineBlueprintLibrary::OcugineGetSupportTopics(const FString & AppID, const FString & AppKey, const int64 CategoryUid, const int64 Page, const FString & Search, const FOnGetSupportTopicsComplete &SuccessCallback, const FOnError &ErrorCallback)
+{
+	const FString PostContent = FString::Printf(TEXT("app_id=%s&app_key=%s&category_uid=%s&page=%s&search=%s"),
+		AppID != "" ? *AppID : *GetDefault<UCustomGameSettings>()->AppID,
+		AppKey != "" ? *AppKey : *GetDefault<UCustomGameSettings>()->AppKey,
+		*FString::FromInt(CategoryUid),
+		*FString::FromInt(Page),
+		*Search
+	);
+
+	TSharedRef<IHttpRequest> HttpRequest = UOcugineBlueprintLibrary::CreateHttpRequest(UOcugineBlueprintLibrary::USERS_OBJECT, "get_support_topics", PostContent);
+	HttpRequest->OnProcessRequestComplete().BindStatic(&UOcugineBlueprintLibrary::OcugineGetSupportTopics_HttpRequestComplete, SuccessCallback, ErrorCallback);
+	HttpRequest->ProcessRequest();
+}
+void UOcugineBlueprintLibrary::OcugineGetSupportTopics_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded, FOnGetSupportTopicsComplete SuccessCallback, FOnError ErrorCallback)
+{
+	if (bSucceeded)
+	{ // If request succeeded
+		FString ResponseStr = HttpResponse->GetContentAsString(); FOcugineSupportTopicsListModel ConvertedResponse; // Declare temp objects
+		if (FJsonObjectConverter::JsonObjectStringToUStruct<FOcugineSupportTopicsListModel>(ResponseStr, &ConvertedResponse, 0, 0)) // If converted
+		{
+			if (ConvertedResponse.complete) { SuccessCallback.ExecuteIfBound(ConvertedResponse); } // If complete is true execute callback
+			else { ErrorCallback.ExecuteIfBound(TEXT("Ocugine Error"), ConvertedResponse.message); } // If not completed
+		}
+		else { ErrorCallback.ExecuteIfBound(TEXT("Parse error"), DEFAULT_PARSE_ERROR); } // If convert exception
+	}
+	else { ErrorCallback.ExecuteIfBound(TEXT("Request error"), DEFAULT_REQUEST_ERROR); } // If request exception
+};
+
+void UOcugineBlueprintLibrary::OcugineGetSupportMessages(const FString & AppID, const FString & AppKey, const int64 TopicUid, const int64 Page, const FString & Search, const FOnGetSupportMessagesComplete &SuccessCallback, const FOnError &ErrorCallback)
+{
+	const FString PostContent = FString::Printf(TEXT("app_id=%s&app_key=%s&topic_uid=%s&page=%s&search=%s"),
+		AppID != "" ? *AppID : *GetDefault<UCustomGameSettings>()->AppID,
+		AppKey != "" ? *AppKey : *GetDefault<UCustomGameSettings>()->AppKey,
+		*FString::FromInt(TopicUid),
+		*FString::FromInt(Page),
+		*Search
+	);
+
+	TSharedRef<IHttpRequest> HttpRequest = UOcugineBlueprintLibrary::CreateHttpRequest(UOcugineBlueprintLibrary::USERS_OBJECT, "get_support_messages", PostContent);
+	HttpRequest->OnProcessRequestComplete().BindStatic(&UOcugineBlueprintLibrary::OcugineGetSupportMessages_HttpRequestComplete, SuccessCallback, ErrorCallback);
+	HttpRequest->ProcessRequest();
+}
+void UOcugineBlueprintLibrary::OcugineGetSupportMessages_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded, FOnGetSupportMessagesComplete SuccessCallback, FOnError ErrorCallback)
+{
+	if (bSucceeded)
+	{ // If request succeeded
+		FString ResponseStr = HttpResponse->GetContentAsString(); FOcugineSupportMessagesListModel ConvertedResponse; // Declare temp objects
+		if (FJsonObjectConverter::JsonObjectStringToUStruct<FOcugineSupportMessagesListModel>(ResponseStr, &ConvertedResponse, 0, 0)) // If converted
+		{
+			if (ConvertedResponse.complete) { SuccessCallback.ExecuteIfBound(ConvertedResponse); } // If complete is true execute callback
+			else { ErrorCallback.ExecuteIfBound(TEXT("Ocugine Error"), ConvertedResponse.message); } // If not completed
+		}
+		else { ErrorCallback.ExecuteIfBound(TEXT("Parse error"), DEFAULT_PARSE_ERROR); } // If convert exception
+	}
+	else { ErrorCallback.ExecuteIfBound(TEXT("Request error"), DEFAULT_REQUEST_ERROR); } // If request exception
+};
+
+void UOcugineBlueprintLibrary::OcugineCreateSupportTopic(const FString & AppID, const FString & AppKey, const FString & AccessToken, const int64 CategoryUid, const FString & Name, const FString & Body, const FOnCreateSupportTopicComplete &SuccessCallback, const FOnError &ErrorCallback)
+{
+	const FString PostContent = FString::Printf(TEXT("app_id=%s&app_key=%s&lang=%s&access_token=%s&category_uid=%s&name=%s&body=%s"),
+		AppID != "" ? *AppID : *GetDefault<UCustomGameSettings>()->AppID,
+		AppKey != "" ? *AppKey : *GetDefault<UCustomGameSettings>()->AppKey,
+		*UOcugineBlueprintLibrary::GetApplicationLanguageFromConfig(),
+		AccessToken != "" ? *AccessToken : *UOcugineBlueprintLibrary::GetDataFromFile("access_token.o", true),
+		*FString::FromInt(CategoryUid),
+		*Name,
+		*Body
+	);
+
+	TSharedRef<IHttpRequest> HttpRequest = UOcugineBlueprintLibrary::CreateHttpRequest(UOcugineBlueprintLibrary::USERS_OBJECT, "create_topic", PostContent);
+	HttpRequest->OnProcessRequestComplete().BindStatic(&UOcugineBlueprintLibrary::OcugineCreateSupportTopic_HttpRequestComplete, SuccessCallback, ErrorCallback);
+	HttpRequest->ProcessRequest();
+}
+void UOcugineBlueprintLibrary::OcugineCreateSupportTopic_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded, FOnCreateSupportTopicComplete SuccessCallback, FOnError ErrorCallback)
+{
+	if (bSucceeded)
+	{ // If request succeeded
+		FString ResponseStr = HttpResponse->GetContentAsString(); FOcugineBaseModel ConvertedResponse; // Declare temp objects
+		if (FJsonObjectConverter::JsonObjectStringToUStruct<FOcugineBaseModel>(ResponseStr, &ConvertedResponse, 0, 0)) // If converted
+		{
+			if (ConvertedResponse.complete) { SuccessCallback.ExecuteIfBound(ConvertedResponse); } // If complete is true execute callback
+			else { ErrorCallback.ExecuteIfBound(TEXT("Ocugine Error"), ConvertedResponse.message); } // If not completed
+		}
+		else { ErrorCallback.ExecuteIfBound(TEXT("Parse error"), DEFAULT_PARSE_ERROR); } // If convert exception
+	}
+	else { ErrorCallback.ExecuteIfBound(TEXT("Request error"), DEFAULT_REQUEST_ERROR); } // If request exception
+};
+
+void UOcugineBlueprintLibrary::OcugineUpdateSupportTopic(const FString & AppID, const FString & AppKey, const FString & AccessToken, const int64 CategoryUid, const int64 TopicUid, const FString & Name, const FString & Body, const FOnUpdateSupportTopicComplete &SuccessCallback, const FOnError &ErrorCallback)
+{
+	const FString PostContent = FString::Printf(TEXT("app_id=%s&app_key=%s&lang=%s&access_token=%s&category_uid=%s&topic_uid=%s&name=%s&body=%s"),
+		AppID != "" ? *AppID : *GetDefault<UCustomGameSettings>()->AppID,
+		AppKey != "" ? *AppKey : *GetDefault<UCustomGameSettings>()->AppKey,
+		*UOcugineBlueprintLibrary::GetApplicationLanguageFromConfig(),
+		AccessToken != "" ? *AccessToken : *UOcugineBlueprintLibrary::GetDataFromFile("access_token.o", true),
+		*FString::FromInt(CategoryUid),
+		*FString::FromInt(TopicUid),
+		*Name,
+		*Body
+	);
+
+	TSharedRef<IHttpRequest> HttpRequest = UOcugineBlueprintLibrary::CreateHttpRequest(UOcugineBlueprintLibrary::USERS_OBJECT, "update_topic", PostContent);
+	HttpRequest->OnProcessRequestComplete().BindStatic(&UOcugineBlueprintLibrary::OcugineUpdateSupportTopic_HttpRequestComplete, SuccessCallback, ErrorCallback);
+	HttpRequest->ProcessRequest();
+}
+void UOcugineBlueprintLibrary::OcugineUpdateSupportTopic_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded, FOnUpdateSupportTopicComplete SuccessCallback, FOnError ErrorCallback)
+{
+	if (bSucceeded)
+	{ // If request succeeded
+		FString ResponseStr = HttpResponse->GetContentAsString(); FOcugineBaseModel ConvertedResponse; // Declare temp objects
+		if (FJsonObjectConverter::JsonObjectStringToUStruct<FOcugineBaseModel>(ResponseStr, &ConvertedResponse, 0, 0)) // If converted
+		{
+			if (ConvertedResponse.complete) { SuccessCallback.ExecuteIfBound(ConvertedResponse); } // If complete is true execute callback
+			else { ErrorCallback.ExecuteIfBound(TEXT("Ocugine Error"), ConvertedResponse.message); } // If not completed
+		}
+		else { ErrorCallback.ExecuteIfBound(TEXT("Parse error"), DEFAULT_PARSE_ERROR); } // If convert exception
+	}
+	else { ErrorCallback.ExecuteIfBound(TEXT("Request error"), DEFAULT_REQUEST_ERROR); } // If request exception
+};
+
+void UOcugineBlueprintLibrary::OcugineCloseSupportTopic(const FString & AppID, const FString & AppKey, const FString & AccessToken, const int64 TopicUid, const FOnCloseSupportTopicComplete &SuccessCallback, const FOnError &ErrorCallback)
+{
+	const FString PostContent = FString::Printf(TEXT("app_id=%s&app_key=%s&lang=%s&access_token=%s&topic_uid=%s"),
+		AppID != "" ? *AppID : *GetDefault<UCustomGameSettings>()->AppID,
+		AppKey != "" ? *AppKey : *GetDefault<UCustomGameSettings>()->AppKey,
+		*UOcugineBlueprintLibrary::GetApplicationLanguageFromConfig(),
+		AccessToken != "" ? *AccessToken : *UOcugineBlueprintLibrary::GetDataFromFile("access_token.o", true),
+		*FString::FromInt(TopicUid)
+	);
+
+	TSharedRef<IHttpRequest> HttpRequest = UOcugineBlueprintLibrary::CreateHttpRequest(UOcugineBlueprintLibrary::USERS_OBJECT, "close_topic", PostContent);
+	HttpRequest->OnProcessRequestComplete().BindStatic(&UOcugineBlueprintLibrary::OcugineCloseSupportTopic_HttpRequestComplete, SuccessCallback, ErrorCallback);
+	HttpRequest->ProcessRequest();
+}
+void UOcugineBlueprintLibrary::OcugineCloseSupportTopic_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded, FOnCloseSupportTopicComplete SuccessCallback, FOnError ErrorCallback)
+{
+	if (bSucceeded)
+	{ // If request succeeded
+		FString ResponseStr = HttpResponse->GetContentAsString(); FOcugineBaseModel ConvertedResponse; // Declare temp objects
+		if (FJsonObjectConverter::JsonObjectStringToUStruct<FOcugineBaseModel>(ResponseStr, &ConvertedResponse, 0, 0)) // If converted
+		{
+			if (ConvertedResponse.complete) { SuccessCallback.ExecuteIfBound(ConvertedResponse); } // If complete is true execute callback
+			else { ErrorCallback.ExecuteIfBound(TEXT("Ocugine Error"), ConvertedResponse.message); } // If not completed
+		}
+		else { ErrorCallback.ExecuteIfBound(TEXT("Parse error"), DEFAULT_PARSE_ERROR); } // If convert exception
+	}
+	else { ErrorCallback.ExecuteIfBound(TEXT("Request error"), DEFAULT_REQUEST_ERROR); } // If request exception
+};
+
+void UOcugineBlueprintLibrary::OcugineSendSupportMessage(const FString & AppID, const FString & AppKey, const FString & AccessToken, const int64 TopicUid, const FString & Message, const FOnSendSupportMessageComplete &SuccessCallback, const FOnError &ErrorCallback)
+{
+	const FString PostContent = FString::Printf(TEXT("app_id=%s&app_key=%s&lang=%s&access_token=%s&topic_uid=%s&message=%s"),
+		AppID != "" ? *AppID : *GetDefault<UCustomGameSettings>()->AppID,
+		AppKey != "" ? *AppKey : *GetDefault<UCustomGameSettings>()->AppKey,
+		*UOcugineBlueprintLibrary::GetApplicationLanguageFromConfig(),
+		AccessToken != "" ? *AccessToken : *UOcugineBlueprintLibrary::GetDataFromFile("access_token.o", true),
+		*FString::FromInt(TopicUid),
+		*Message
+	);
+
+	TSharedRef<IHttpRequest> HttpRequest = UOcugineBlueprintLibrary::CreateHttpRequest(UOcugineBlueprintLibrary::USERS_OBJECT, "send_support_message", PostContent);
+	HttpRequest->OnProcessRequestComplete().BindStatic(&UOcugineBlueprintLibrary::OcugineSendSupportMessage_HttpRequestComplete, SuccessCallback, ErrorCallback);
+	HttpRequest->ProcessRequest();
+}
+void UOcugineBlueprintLibrary::OcugineSendSupportMessage_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded, FOnSendSupportMessageComplete SuccessCallback, FOnError ErrorCallback)
+{
+	if (bSucceeded)
+	{ // If request succeeded
+		FString ResponseStr = HttpResponse->GetContentAsString(); FOcugineBaseModel ConvertedResponse; // Declare temp objects
+		if (FJsonObjectConverter::JsonObjectStringToUStruct<FOcugineBaseModel>(ResponseStr, &ConvertedResponse, 0, 0)) // If converted
+		{
+			if (ConvertedResponse.complete) { SuccessCallback.ExecuteIfBound(ConvertedResponse); } // If complete is true execute callback
+			else { ErrorCallback.ExecuteIfBound(TEXT("Ocugine Error"), ConvertedResponse.message); } // If not completed
+		}
+		else { ErrorCallback.ExecuteIfBound(TEXT("Parse error"), DEFAULT_PARSE_ERROR); } // If convert exception
+	}
+	else { ErrorCallback.ExecuteIfBound(TEXT("Request error"), DEFAULT_REQUEST_ERROR); } // If request exception
+};
+
+void UOcugineBlueprintLibrary::OcugineGetChatRooms(const FString & AppID, const FString & AppKey, const FOnGetChatRoomsComplete &SuccessCallback, const FOnError &ErrorCallback)
+{
+	const FString PostContent = FString::Printf(TEXT("app_id=%s&app_key=%s&lang=%s"),
+		AppID != "" ? *AppID : *GetDefault<UCustomGameSettings>()->AppID,
+		AppKey != "" ? *AppKey : *GetDefault<UCustomGameSettings>()->AppKey,
+		*UOcugineBlueprintLibrary::GetApplicationLanguageFromConfig()
+	);
+
+	TSharedRef<IHttpRequest> HttpRequest = UOcugineBlueprintLibrary::CreateHttpRequest(UOcugineBlueprintLibrary::USERS_OBJECT, "get_available_rooms", PostContent);
+	HttpRequest->OnProcessRequestComplete().BindStatic(&UOcugineBlueprintLibrary::OcugineGetChatRooms_HttpRequestComplete, SuccessCallback, ErrorCallback);
+	HttpRequest->ProcessRequest();
+}
+void UOcugineBlueprintLibrary::OcugineGetChatRooms_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded, FOnGetChatRoomsComplete SuccessCallback, FOnError ErrorCallback)
+{
+	if (bSucceeded)
+	{ // If request succeeded
+		FString ResponseStr = HttpResponse->GetContentAsString(); FOcugineChatRoomsListModel ConvertedResponse; // Declare temp objects
+		if (FJsonObjectConverter::JsonObjectStringToUStruct<FOcugineChatRoomsListModel>(ResponseStr, &ConvertedResponse, 0, 0)) // If converted
+		{
+			if (ConvertedResponse.complete) { SuccessCallback.ExecuteIfBound(ConvertedResponse); } // If complete is true execute callback
+			else { ErrorCallback.ExecuteIfBound(TEXT("Ocugine Error"), ConvertedResponse.message); } // If not completed
+		}
+		else { ErrorCallback.ExecuteIfBound(TEXT("Parse error"), DEFAULT_PARSE_ERROR); } // If convert exception
+	}
+	else { ErrorCallback.ExecuteIfBound(TEXT("Request error"), DEFAULT_REQUEST_ERROR); } // If request exception
+};
+
+void UOcugineBlueprintLibrary::OcugineGetChatMessages(const FString & AppID, const FString & AppKey, const int64 RoomId, const FOnGetChatMessagesComplete &SuccessCallback, const FOnError &ErrorCallback)
+{
+	const FString PostContent = FString::Printf(TEXT("app_id=%s&app_key=%s&lang=%s&room_id=%s"),
+		AppID != "" ? *AppID : *GetDefault<UCustomGameSettings>()->AppID,
+		AppKey != "" ? *AppKey : *GetDefault<UCustomGameSettings>()->AppKey,
+		*UOcugineBlueprintLibrary::GetApplicationLanguageFromConfig(),
+		*FString::FromInt(RoomId)
+	);
+
+	TSharedRef<IHttpRequest> HttpRequest = UOcugineBlueprintLibrary::CreateHttpRequest(UOcugineBlueprintLibrary::USERS_OBJECT, "get_chat_messages", PostContent);
+	HttpRequest->OnProcessRequestComplete().BindStatic(&UOcugineBlueprintLibrary::OcugineGetChatMessages_HttpRequestComplete, SuccessCallback, ErrorCallback);
+	HttpRequest->ProcessRequest();
+}
+void UOcugineBlueprintLibrary::OcugineGetChatMessages_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded, FOnGetChatMessagesComplete SuccessCallback, FOnError ErrorCallback)
+{
+	if (bSucceeded)
+	{ // If request succeeded
+		FString ResponseStr = HttpResponse->GetContentAsString(); FOcugineChatMessagesListModel ConvertedResponse; // Declare temp objects
+		if (FJsonObjectConverter::JsonObjectStringToUStruct<FOcugineChatMessagesListModel>(ResponseStr, &ConvertedResponse, 0, 0)) // If converted
+		{
+			if (ConvertedResponse.complete) { SuccessCallback.ExecuteIfBound(ConvertedResponse); } // If complete is true execute callback
+			else { ErrorCallback.ExecuteIfBound(TEXT("Ocugine Error"), ConvertedResponse.message); } // If not completed
+		}
+		else { ErrorCallback.ExecuteIfBound(TEXT("Parse error"), DEFAULT_PARSE_ERROR); } // If convert exception
+	}
+	else { ErrorCallback.ExecuteIfBound(TEXT("Request error"), DEFAULT_REQUEST_ERROR); } // If request exception
+};
+
+void UOcugineBlueprintLibrary::OcugineSendChatMessage(const FString & AppID, const FString & AppKey, const FString & AccessToken, const int64 RoomId, const FString & Message, const FOnSendChatMessageComplete &SuccessCallback, const FOnError &ErrorCallback)
+{
+	const FString PostContent = FString::Printf(TEXT("app_id=%s&app_key=%s&lang=%s&access_token=%s&room_id=%s&message=%s"),
+		AppID != "" ? *AppID : *GetDefault<UCustomGameSettings>()->AppID,
+		AppKey != "" ? *AppKey : *GetDefault<UCustomGameSettings>()->AppKey,
+		*UOcugineBlueprintLibrary::GetApplicationLanguageFromConfig(),
+		AccessToken != "" ? *AccessToken : *UOcugineBlueprintLibrary::GetDataFromFile("access_token.o", true),
+		*FString::FromInt(RoomId),
+		*Message
+	);
+
+	TSharedRef<IHttpRequest> HttpRequest = UOcugineBlueprintLibrary::CreateHttpRequest(UOcugineBlueprintLibrary::USERS_OBJECT, "send_cmessage", PostContent);
+	HttpRequest->OnProcessRequestComplete().BindStatic(&UOcugineBlueprintLibrary::OcugineSendChatMessage_HttpRequestComplete, SuccessCallback, ErrorCallback);
+	HttpRequest->ProcessRequest();
+}
+void UOcugineBlueprintLibrary::OcugineSendChatMessage_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded, FOnSendChatMessageComplete SuccessCallback, FOnError ErrorCallback)
+{
+	if (bSucceeded)
+	{ // If request succeeded
+		FString ResponseStr = HttpResponse->GetContentAsString(); FOcugineBaseModel ConvertedResponse; // Declare temp objects
+		if (FJsonObjectConverter::JsonObjectStringToUStruct<FOcugineBaseModel>(ResponseStr, &ConvertedResponse, 0, 0)) // If converted
+		{
+			if (ConvertedResponse.complete) { SuccessCallback.ExecuteIfBound(ConvertedResponse); } // If complete is true execute callback
+			else { ErrorCallback.ExecuteIfBound(TEXT("Ocugine Error"), ConvertedResponse.message); } // If not completed
+		}
+		else { ErrorCallback.ExecuteIfBound(TEXT("Parse error"), DEFAULT_PARSE_ERROR); } // If convert exception
+	}
+	else { ErrorCallback.ExecuteIfBound(TEXT("Request error"), DEFAULT_REQUEST_ERROR); } // If request exception
+};
+
+void UOcugineBlueprintLibrary::OcugineSendReview(const FString & AppID, const FString & AppKey, const FString & AccessToken, const FString & Message, const int64 Stars, const FOnSendReviewComplete &SuccessCallback, const FOnError &ErrorCallback)
+{
+	const FString PostContent = FString::Printf(TEXT("app_id=%s&app_key=%s&lang=%s&access_token=%s&message=%s&stars=%s"),
+		AppID != "" ? *AppID : *GetDefault<UCustomGameSettings>()->AppID,
+		AppKey != "" ? *AppKey : *GetDefault<UCustomGameSettings>()->AppKey,
+		*UOcugineBlueprintLibrary::GetApplicationLanguageFromConfig(),
+		AccessToken != "" ? *AccessToken : *UOcugineBlueprintLibrary::GetDataFromFile("access_token.o", true),
+		*Message,
+		*FString::FromInt(Stars)
+	);
+
+	TSharedRef<IHttpRequest> HttpRequest = UOcugineBlueprintLibrary::CreateHttpRequest(UOcugineBlueprintLibrary::USERS_OBJECT, "send_review", PostContent);
+	HttpRequest->OnProcessRequestComplete().BindStatic(&UOcugineBlueprintLibrary::OcugineSendReview_HttpRequestComplete, SuccessCallback, ErrorCallback);
+	HttpRequest->ProcessRequest();
+}
+void UOcugineBlueprintLibrary::OcugineSendReview_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded, FOnSendReviewComplete SuccessCallback, FOnError ErrorCallback)
+{
+	if (bSucceeded)
+	{ // If request succeeded
+		FString ResponseStr = HttpResponse->GetContentAsString(); FOcugineReviewsListModel ConvertedResponse; // Declare temp objects
+		if (FJsonObjectConverter::JsonObjectStringToUStruct<FOcugineReviewsListModel>(ResponseStr, &ConvertedResponse, 0, 0)) // If converted
+		{
+			if (ConvertedResponse.complete) { SuccessCallback.ExecuteIfBound(ConvertedResponse); } // If complete is true execute callback
+			else { ErrorCallback.ExecuteIfBound(TEXT("Ocugine Error"), ConvertedResponse.message); } // If not completed
+		}
+		else { ErrorCallback.ExecuteIfBound(TEXT("Parse error"), DEFAULT_PARSE_ERROR); } // If convert exception
+	}
+	else { ErrorCallback.ExecuteIfBound(TEXT("Request error"), DEFAULT_REQUEST_ERROR); } // If request exception
+};
+
+void UOcugineBlueprintLibrary::OcugineGetReviewsList(const FString & AppID, const FString & AppKey, const int64 Page, const FString & Search, const FOnGetReviewsListComplete &SuccessCallback, const FOnError &ErrorCallback)
+{
+	const FString PostContent = FString::Printf(TEXT("app_id=%s&app_key=%s&lang=%s&page=%s&search=%s"),
+		AppID != "" ? *AppID : *GetDefault<UCustomGameSettings>()->AppID,
+		AppKey != "" ? *AppKey : *GetDefault<UCustomGameSettings>()->AppKey,
+		*UOcugineBlueprintLibrary::GetApplicationLanguageFromConfig(),
+		*FString::FromInt(Page),
+		*Search
+	);
+
+	TSharedRef<IHttpRequest> HttpRequest = UOcugineBlueprintLibrary::CreateHttpRequest(UOcugineBlueprintLibrary::USERS_OBJECT, "get_reviews", PostContent);
+	HttpRequest->OnProcessRequestComplete().BindStatic(&UOcugineBlueprintLibrary::OcugineGetReviewsList_HttpRequestComplete, SuccessCallback, ErrorCallback);
+	HttpRequest->ProcessRequest();
+}
+void UOcugineBlueprintLibrary::OcugineGetReviewsList_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded, FOnGetReviewsListComplete SuccessCallback, FOnError ErrorCallback)
+{
+	if (bSucceeded)
+	{ // If request succeeded
+		FString ResponseStr = HttpResponse->GetContentAsString(); FOcugineReviewsListModel ConvertedResponse; // Declare temp objects
+		if (FJsonObjectConverter::JsonObjectStringToUStruct<FOcugineReviewsListModel>(ResponseStr, &ConvertedResponse, 0, 0)) // If converted
+		{
+			if (ConvertedResponse.complete) { SuccessCallback.ExecuteIfBound(ConvertedResponse); } // If complete is true execute callback
+			else { ErrorCallback.ExecuteIfBound(TEXT("Ocugine Error"), ConvertedResponse.message); } // If not completed
+		}
+		else { ErrorCallback.ExecuteIfBound(TEXT("Parse error"), DEFAULT_PARSE_ERROR); } // If convert exception
+	}
+	else { ErrorCallback.ExecuteIfBound(TEXT("Request error"), DEFAULT_REQUEST_ERROR); } // If request exception
+};
+
+void UOcugineBlueprintLibrary::OcugineGetPolicyList(const FString & AppID, const FString & AppKey, const FOnGetPolicyListComplete &SuccessCallback, const FOnError &ErrorCallback)
+{
+	const FString PostContent = FString::Printf(TEXT("app_id=%s&app_key=%s&lang=%s"),
+		AppID != "" ? *AppID : *GetDefault<UCustomGameSettings>()->AppID,
+		AppKey != "" ? *AppKey : *GetDefault<UCustomGameSettings>()->AppKey,
+		*UOcugineBlueprintLibrary::GetApplicationLanguageFromConfig()
+	);
+
+	TSharedRef<IHttpRequest> HttpRequest = UOcugineBlueprintLibrary::CreateHttpRequest(UOcugineBlueprintLibrary::USERS_OBJECT, "get_policy_list", PostContent);
+	HttpRequest->OnProcessRequestComplete().BindStatic(&UOcugineBlueprintLibrary::OcugineGetPolicyList_HttpRequestComplete, SuccessCallback, ErrorCallback);
+	HttpRequest->ProcessRequest();
+}
+void UOcugineBlueprintLibrary::OcugineGetPolicyList_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded, FOnGetPolicyListComplete SuccessCallback, FOnError ErrorCallback)
+{
+	if (bSucceeded)
+	{ // If request succeeded
+		FString ResponseStr = HttpResponse->GetContentAsString(); FOcuginePolicyListModel ConvertedResponse; // Declare temp objects
+		if (FJsonObjectConverter::JsonObjectStringToUStruct<FOcuginePolicyListModel>(ResponseStr, &ConvertedResponse, 0, 0)) // If converted
+		{
+			if (ConvertedResponse.complete) { SuccessCallback.ExecuteIfBound(ConvertedResponse); } // If complete is true execute callback
+			else { ErrorCallback.ExecuteIfBound(TEXT("Ocugine Error"), ConvertedResponse.message); } // If not completed
+		}
+		else { ErrorCallback.ExecuteIfBound(TEXT("Parse error"), DEFAULT_PARSE_ERROR); } // If convert exception
+	}
+	else { ErrorCallback.ExecuteIfBound(TEXT("Request error"), DEFAULT_REQUEST_ERROR); } // If request exception
+};
+
+void UOcugineBlueprintLibrary::OcugineGetPolicyInfo(const FString & AppID, const FString & AppKey, const int64 Pid, const FOnGetPolicyInfoComplete &SuccessCallback, const FOnError &ErrorCallback)
+{
+	const FString PostContent = FString::Printf(TEXT("app_id=%s&app_key=%s&lang=%s&pid=%s"),
+		AppID != "" ? *AppID : *GetDefault<UCustomGameSettings>()->AppID,
+		AppKey != "" ? *AppKey : *GetDefault<UCustomGameSettings>()->AppKey,
+		*UOcugineBlueprintLibrary::GetApplicationLanguageFromConfig(),
+		*FString::FromInt(Pid)
+	);
+
+	TSharedRef<IHttpRequest> HttpRequest = UOcugineBlueprintLibrary::CreateHttpRequest(UOcugineBlueprintLibrary::USERS_OBJECT, "get_policy_info", PostContent);
+	HttpRequest->OnProcessRequestComplete().BindStatic(&UOcugineBlueprintLibrary::OcugineGetPolicyInfo_HttpRequestComplete, SuccessCallback, ErrorCallback);
+	HttpRequest->ProcessRequest();
+}
+void UOcugineBlueprintLibrary::OcugineGetPolicyInfo_HttpRequestComplete(FHttpRequestPtr HttpRequest, FHttpResponsePtr HttpResponse, bool bSucceeded, FOnGetPolicyInfoComplete SuccessCallback, FOnError ErrorCallback)
+{
+	if (bSucceeded)
+	{ // If request succeeded
+		FString ResponseStr = HttpResponse->GetContentAsString(); FOcuginePolicyModel ConvertedResponse; // Declare temp objects
+		if (FJsonObjectConverter::JsonObjectStringToUStruct<FOcuginePolicyModel>(ResponseStr, &ConvertedResponse, 0, 0)) // If converted
+		{
+			if (ConvertedResponse.complete) { SuccessCallback.ExecuteIfBound(ConvertedResponse); } // If complete is true execute callback
+			else { ErrorCallback.ExecuteIfBound(TEXT("Ocugine Error"), ConvertedResponse.message); } // If not completed
+		}
+		else { ErrorCallback.ExecuteIfBound(TEXT("Parse error"), DEFAULT_PARSE_ERROR); } // If convert exception
+	}
+	else { ErrorCallback.ExecuteIfBound(TEXT("Request error"), DEFAULT_REQUEST_ERROR); } // If request exception
+};
+
 #pragma endregion
 
 //===================================================
